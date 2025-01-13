@@ -29,8 +29,10 @@ export function Hero() {
             Fasal
           </h1>
           <p className="text-xl md:text-2xl mb-8 text-slate-600 dark:text-slate-300">
-            Empowering Indian Farmers with Modern Technology
-          </p>
+          
+  This platform provides tools for <strong>yield prediction</strong>, <strong>fertilizer recommendation</strong>, <strong>crop recommendation</strong>, and <strong>crop disease detection</strong>, empowering farmers with data-driven insights for sustainable and efficient farming.
+</p>
+          
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}

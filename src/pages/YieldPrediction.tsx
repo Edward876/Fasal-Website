@@ -1,7 +1,56 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Client } from "@gradio/client";
 
 export function YieldPrediction() {
+  const [formData, setFormData] = useState({
+    state_name: '',
+    crop_type: '',
+    crop: '',
+    n: '',
+    p: '',
+    k: '',
+    ph: '',
+    rainfall: '',
+    temperature: '',
+    area_in_hectares: ''
+  });
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const client = await Client.connect("Shinichi876/crop-prediction");
+      const response = await client.predict("/predict", {
+        state_name: formData.state_name,
+        crop_type: formData.crop_type,
+        crop: formData.crop,
+        n: parseFloat(formData.n),
+        p: parseFloat(formData.p),
+        k: parseFloat(formData.k),
+        ph: parseFloat(formData.ph),
+        rainfall: parseFloat(formData.rainfall),
+        temperature: parseFloat(formData.temperature),
+        area_in_hectares: parseFloat(formData.area_in_hectares),
+      });
+
+      setResult(response.data);
+    } catch (error) {
+      console.error("Error fetching yield prediction:", error);
+      setResult("Error fetching yield prediction. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <motion.div
@@ -13,78 +62,177 @@ export function YieldPrediction() {
         <h1 className="text-3xl font-bold mb-8 text-slate-800 dark:text-white">
           Yield Prediction
         </h1>
-        
+
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6">
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  State Name
+                </label>
+                <input
+                  type="text"
+                  name="state_name"
+                  value={formData.state_name}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 rounded-lg bg-white dark:bg-slate-700 
+                               border border-slate-300 dark:border-slate-600
+                               text-slate-800 dark:text-white"
+                  placeholder="Enter state name"
+                />
+              </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                   Crop Type
                 </label>
-                <select className="w-full px-4 py-2 rounded-lg bg-white dark:bg-slate-700 
-                                 border border-slate-300 dark:border-slate-600
-                                 text-slate-800 dark:text-white">
-                  <option value="">Select crop</option>
-                  <option value="rice">Rice</option>
-                  <option value="wheat">Wheat</option>
-                  <option value="cotton">Cotton</option>
-                  <option value="sugarcane">Sugarcane</option>
-                </select>
+                <input
+                  type="text"
+                  name="crop_type"
+                  value={formData.crop_type}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 rounded-lg bg-white dark:bg-slate-700 
+                               border border-slate-300 dark:border-slate-600
+                               text-slate-800 dark:text-white"
+                  placeholder="Enter crop type"
+                />
               </div>
-              
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                  Area (in acres)
+                  Crop
+                </label>
+                <input
+                  type="text"
+                  name="crop"
+                  value={formData.crop}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 rounded-lg bg-white dark:bg-slate-700 
+                               border border-slate-300 dark:border-slate-600
+                               text-slate-800 dark:text-white"
+                  placeholder="Enter crop"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Nitrogen (N)
                 </label>
                 <input
                   type="number"
-                  min="0"
-                  step="0.1"
+                  name="n"
+                  value={formData.n}
+                  onChange={handleChange}
                   className="w-full px-4 py-2 rounded-lg bg-white dark:bg-slate-700 
-                           border border-slate-300 dark:border-slate-600
-                           text-slate-800 dark:text-white"
+                               border border-slate-300 dark:border-slate-600
+                               text-slate-800 dark:text-white"
+                  placeholder="Enter N value"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Phosphorus (P)
+                </label>
+                <input
+                  type="number"
+                  name="p"
+                  value={formData.p}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 rounded-lg bg-white dark:bg-slate-700 
+                               border border-slate-300 dark:border-slate-600
+                               text-slate-800 dark:text-white"
+                  placeholder="Enter P value"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Potassium (K)
+                </label>
+                <input
+                  type="number"
+                  name="k"
+                  value={formData.k}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 rounded-lg bg-white dark:bg-slate-700 
+                               border border-slate-300 dark:border-slate-600
+                               text-slate-800 dark:text-white"
+                  placeholder="Enter K value"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  pH Level
+                </label>
+                <input
+                  type="number"
+                  name="ph"
+                  value={formData.ph}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 rounded-lg bg-white dark:bg-slate-700 
+                               border border-slate-300 dark:border-slate-600
+                               text-slate-800 dark:text-white"
+                  placeholder="Enter pH level"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Rainfall (mm)
+                </label>
+                <input
+                  type="number"
+                  name="rainfall"
+                  value={formData.rainfall}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 rounded-lg bg-white dark:bg-slate-700 
+                               border border-slate-300 dark:border-slate-600
+                               text-slate-800 dark:text-white"
+                  placeholder="Enter rainfall"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Temperature (°C)
+                </label>
+                <input
+                  type="number"
+                  name="temperature"
+                  value={formData.temperature}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 rounded-lg bg-white dark:bg-slate-700 
+                               border border-slate-300 dark:border-slate-600
+                               text-slate-800 dark:text-white"
+                  placeholder="Enter temperature"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Area (in hectares)
+                </label>
+                <input
+                  type="number"
+                  name="area_in_hectares"
+                  value={formData.area_in_hectares}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 rounded-lg bg-white dark:bg-slate-700 
+                               border border-slate-300 dark:border-slate-600
+                               text-slate-800 dark:text-white"
                   placeholder="Enter area"
                 />
               </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                  Irrigation Type
-                </label>
-                <select className="w-full px-4 py-2 rounded-lg bg-white dark:bg-slate-700 
-                                 border border-slate-300 dark:border-slate-600
-                                 text-slate-800 dark:text-white">
-                  <option value="">Select irrigation type</option>
-                  <option value="drip">Drip Irrigation</option>
-                  <option value="sprinkler">Sprinkler</option>
-                  <option value="flood">Flood Irrigation</option>
-                </select>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                  Fertilizer Usage
-                </label>
-                <select className="w-full px-4 py-2 rounded-lg bg-white dark:bg-slate-700 
-                                 border border-slate-300 dark:border-slate-600
-                                 text-slate-800 dark:text-white">
-                  <option value="">Select usage level</option>
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
-                </select>
-              </div>
             </div>
-            
+
             <button
               type="submit"
               className="w-full px-6 py-3 bg-green-600 hover:bg-green-700 
                        text-white rounded-lg transition-colors duration-200
                        font-medium text-lg"
             >
-              Calculate Yield
+              {loading ? "Calculating..." : "Calculate Yield"}
             </button>
           </form>
+
+          {result && (
+            <div className="mt-6 p-4 bg-green-100 text-green-800 rounded-lg">
+              <strong>{result}</strong> 
+            </div>
+          )}
         </div>
       </motion.div>
     </div>

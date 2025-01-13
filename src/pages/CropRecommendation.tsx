@@ -1,7 +1,50 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Client } from "@gradio/client";
 
 export function CropRecommendation() {
+  const [formData, setFormData] = useState({
+    N: '',
+    P: '',
+    K: '',
+    temperature: '',
+    humidity: '',
+    ph_value: '',
+    rainfall: ''
+  });
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false); // For loading state
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true); // Set loading to true before API call
+
+    try {
+      const client = await Client.connect("Shinichi876/crop_recom");
+      const response = await client.predict("/predict", {
+        N: parseFloat(formData.N),
+        P: parseFloat(formData.P),
+        K: parseFloat(formData.K),
+        temperature: parseFloat(formData.temperature),
+        humidity: parseFloat(formData.humidity),
+        ph_value: parseFloat(formData.ph_value),
+        rainfall: parseFloat(formData.rainfall),
+      });
+
+      setResult(response.data);
+    } catch (error) {
+      console.error("Error fetching crop recommendation:", error);
+      setResult("Error fetching crop recommendation. Please try again.");
+    } finally {
+      setLoading(false); // Set loading to false after API call
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <motion.div
@@ -13,79 +56,52 @@ export function CropRecommendation() {
         <h1 className="text-3xl font-bold mb-8 text-slate-800 dark:text-white">
           Crop Recommendation
         </h1>
-        
+
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6">
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                  Soil Type
-                </label>
-                <select className="w-full px-4 py-2 rounded-lg bg-white dark:bg-slate-700 
-                                 border border-slate-300 dark:border-slate-600
-                                 text-slate-800 dark:text-white">
-                  <option value="">Select soil type</option>
-                  <option value="clay">Clay</option>
-                  <option value="loamy">Loamy</option>
-                  <option value="sandy">Sandy</option>
-                </select>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                  pH Level
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  max="14"
-                  step="0.1"
-                  className="w-full px-4 py-2 rounded-lg bg-white dark:bg-slate-700 
-                           border border-slate-300 dark:border-slate-600
-                           text-slate-800 dark:text-white"
-                  placeholder="Enter soil pH"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                  Region
-                </label>
-                <select className="w-full px-4 py-2 rounded-lg bg-white dark:bg-slate-700 
-                                 border border-slate-300 dark:border-slate-600
-                                 text-slate-800 dark:text-white">
-                  <option value="">Select region</option>
-                  <option value="north">North India</option>
-                  <option value="south">South India</option>
-                  <option value="east">East India</option>
-                  <option value="west">West India</option>
-                </select>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                  Season
-                </label>
-                <select className="w-full px-4 py-2 rounded-lg bg-white dark:bg-slate-700 
-                                 border border-slate-300 dark:border-slate-600
-                                 text-slate-800 dark:text-white">
-                  <option value="">Select season</option>
-                  <option value="kharif">Kharif</option>
-                  <option value="rabi">Rabi</option>
-                  <option value="zaid">Zaid</option>
-                </select>
-              </div>
+              {['N', 'P', 'K', 'temperature', 'humidity', 'ph_value', 'rainfall'].map((field, index) => (
+                <div key={index}>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    {field.charAt(0).toUpperCase() + field.slice(1)}
+                  </label>
+                  <input
+                    type="number"
+                    name={field}
+                    value={formData[field]}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 rounded-lg bg-white dark:bg-slate-700 
+                               border border-slate-300 dark:border-slate-600
+                               text-slate-800 dark:text-white"
+                    placeholder={`Enter ${field}`}
+                  />
+                </div>
+              ))}
             </div>
-            
+
             <button
               type="submit"
               className="w-full px-6 py-3 bg-green-600 hover:bg-green-700 
                        text-white rounded-lg transition-colors duration-200
                        font-medium text-lg"
             >
-              Get Recommendations
+              {loading ? "Recommending..." : "Get Recommendations"}
             </button>
           </form>
+          {result && (
+            <div className="mt-6 p-4 bg-green-100 text-green-800 rounded-lg">
+              <strong>{result}</strong>
+            </div>
+          )}
+
+          <div className="mt-6 p-4 bg-yellow-100 text-yellow-800 rounded-lg flex items-center">
+            <span className="mr-2">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z" />
+              </svg>
+            </span>
+            <strong>Important Message:</strong> For P.H value of your soil please contact your Krishi Udyog Kendra.
+          </div>
         </div>
       </motion.div>
     </div>

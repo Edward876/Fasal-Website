@@ -51,15 +51,15 @@ export function Footer() {
             <ul className="space-y-2">
               <li className="flex items-center space-x-2 text-slate-600 dark:text-slate-300">
                 <Phone className="h-5 w-5" />
-                <span>+91 1234567890</span>
+                <span>+91 9818380760</span>
               </li>
               <li className="flex items-center space-x-2 text-slate-600 dark:text-slate-300">
                 <Mail className="h-5 w-5" />
-                <span>support@fasal.com</span>
+                <span>maksadfasal@gmail.com</span>
               </li>
               <li className="flex items-center space-x-2 text-slate-600 dark:text-slate-300">
                 <MapPin className="h-5 w-5" />
-                <span>Mumbai, Maharashtra</span>
+                <span>Bennett University, Greater Noida</span>
               </li>
             </ul>
           </div>
