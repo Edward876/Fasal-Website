@@ -2,6 +2,13 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Client } from "@gradio/client";
 
+const cropOptions = {
+  kharif: ['cotton', 'jowar', 'maize', 'moong', 'ragi', 'rice', 'soyabean', 'sunflower'],
+  rabi: ['wheat', 'barley', 'gram', 'rapeseed', 'mustard'],
+  summer: ['groundnut', 'maize', 'sunflower'],
+  'whole year': ['banana', 'papaya', 'sugarcane', 'coconut', 'arecanut', 'ginger']
+};
+
 export function YieldPrediction() {
   const [formData, setFormData] = useState({
     state_name: '',
@@ -21,6 +28,11 @@ export function YieldPrediction() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // Reset crop field when crop_type changes
+    if (name === 'crop_type') {
+      setFormData((prev) => ({ ...prev, crop: '' }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -81,36 +93,51 @@ export function YieldPrediction() {
                   placeholder="Enter state name"
                 />
               </div>
+
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                   Crop Type
                 </label>
-                <input
-                  type="text"
+                <select
                   name="crop_type"
                   value={formData.crop_type}
                   onChange={handleChange}
                   className="w-full px-4 py-2 rounded-lg bg-white dark:bg-slate-700 
                                border border-slate-300 dark:border-slate-600
                                text-slate-800 dark:text-white"
-                  placeholder="Enter crop type"
-                />
+                >
+                  <option value="">Select Crop Type</option>
+                  {Object.keys(cropOptions).map((type) => (
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
+                  ))}
+                </select>
               </div>
+
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                   Crop
                 </label>
-                <input
-                  type="text"
+                <select
                   name="crop"
                   value={formData.crop}
                   onChange={handleChange}
                   className="w-full px-4 py-2 rounded-lg bg-white dark:bg-slate-700 
                                border border-slate-300 dark:border-slate-600
                                text-slate-800 dark:text-white"
-                  placeholder="Enter crop"
-                />
+                >
+                  <option value="">Select Crop</option>
+                  {formData.crop_type &&
+                    cropOptions[formData.crop_type].map((crop) => (
+                      <option key={crop} value={crop}>
+                        {crop}
+                      </option>
+                    ))}
+                </select>
               </div>
+
+              {/* Other input fields remain unchanged */}
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                   Nitrogen (N)
